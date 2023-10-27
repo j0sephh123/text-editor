@@ -1,21 +1,30 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
 import express from 'express';
-import * as path from 'path';
+import { createServer } from 'http';
+import { Server as WebSocketServer } from 'ws';
+import cors from 'cors';
 
 const app = express();
+const server = createServer(app);
+const wss = new WebSocketServer({ server });
 
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+// CORS configuration
+const corsOptions = {
+  origin: 'http://localhost:3000', // Your frontend server
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
 
-app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to server!' });
+app.use(cors(corsOptions));
+
+wss.on('connection', (ws) => {
+  ws.on('message', (message) => {
+    console.log(`Received message => ${message}`);
+  });
+
+  ws.send('Hello from WebSocket server');
 });
 
-const port = process.env.PORT || 3333;
-const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`);
+server.listen(3333, () => {
+  console.log('Server started on http://localhost:3333/');
 });
-server.on('error', console.error);

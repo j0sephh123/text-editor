@@ -1,83 +1,46 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import styles from './App.module.css';
+import React, { useEffect, useRef } from 'react';
 
-import { Route, Routes, Link } from 'react-router-dom';
+const App = () => {
+  const wsRef = useRef<WebSocket | null>(null);
 
-export function App() {
+  useEffect(() => {
+    // Create a WebSocket connection
+    wsRef.current = new WebSocket('ws://localhost:3333');
+
+    // Events
+    wsRef.current.onopen = () => {
+      console.log('Connected to the WebSocket');
+    };
+
+    wsRef.current.onmessage = (event) => {
+      console.log(`Received: ${event.data}`);
+    };
+
+    wsRef.current.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    // Don't forget to clean up
+    return () => {
+      wsRef.current?.close();
+    };
+  }, []);
+
+  const click = () => {
+    console.log(wsRef.current)
+    if (wsRef.current) {
+      console.log('send');
+
+      wsRef.current.send('Hello from client');
+    }
+  };
+
   return (
     <div>
-      <h1>
-        <span> Hello there, </span>
-        Welcome ui 👋
-      </h1>
+      <button onClick={click}>Send Message</button>
+      <h1>WebSocket Test</h1>
     </div>
   );
-}
+};
 
 export default App;
-
-if (import.meta.vitest) {
-  // add tests related to your file here
-  // For more information please visit the Vitest docs site here: https://vitest.dev/guide/in-source.html
-
-  const { it, expect, beforeEach } = import.meta.vitest;
-  let render: any;
-
-  beforeEach(async () => {
-    render = (await import('@testing-library/react')).render;
-  });
-
-  it('should render successfully', () => {
-    const { baseElement } = render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    );
-    expect(baseElement).toBeTruthy();
-  });
-
-  it('should have a greeting as the title', () => {
-    const { getByText } = render(
-      <BrowserRouter>
-        <App />
-        {/* START: routes */}
-        {/* These routes and navigation have been generated for you */}
-        {/* Feel free to move and update them to fit your needs */}
-        <br />
-        <hr />
-        <br />
-        <div role="navigation">
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/page-2">Page 2</Link>
-            </li>
-          </ul>
-        </div>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <div>
-                This is the generated root route.{' '}
-                <Link to="/page-2">Click here for page 2.</Link>
-              </div>
-            }
-          />
-          <Route
-            path="/page-2"
-            element={
-              <div>
-                <Link to="/">Click here to go back to root page.</Link>
-              </div>
-            }
-          />
-        </Routes>
-        {/* END: routes */}
-      </BrowserRouter>
-    );
-    expect(getByText(/Welcome ui/gi)).toBeTruthy();
-  });
-}
