@@ -1,4 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { escapeHtml } from '../utils/html';
+
+const markup = escapeHtml(`if (Math.random() > 0.5) {
+  const y = 5;
+}
+console.log(y); // ReferenceError: y is not defined
+`);
 
 const App = () => {
   const wsRef = useRef<WebSocket | null>(null);
@@ -14,6 +21,7 @@ const App = () => {
 
     wsRef.current.onmessage = (event) => {
       console.log(`Received: ${event.data}`);
+      // console.log(JSON.parse(event.data))
     };
 
     wsRef.current.onclose = () => {
@@ -27,7 +35,7 @@ const App = () => {
   }, []);
 
   const click = () => {
-    console.log(wsRef.current)
+    console.log(wsRef.current);
     if (wsRef.current) {
       console.log('send');
 
@@ -39,6 +47,7 @@ const App = () => {
     <div>
       <button onClick={click}>Send Message</button>
       <h1>WebSocket Test</h1>
+      <div contentEditable dangerouslySetInnerHTML={{ __html: markup }} />
     </div>
   );
 };

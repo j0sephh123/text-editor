@@ -2,6 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server as WebSocketServer } from 'ws';
 import cors from 'cors';
+import FileService from './services/FileService';
 
 const app = express();
 const server = createServer(app);
@@ -17,9 +18,18 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+const fileService = new FileService();
+
 wss.on('connection', (ws) => {
-  ws.on('message', (message) => {
+  ws.on('message', async (message) => {
+    // ws.send(fileService.readFileContent('data/sum.js'))
     console.log(`Received message => ${message}`);
+    ws.send(
+      JSON.stringify({
+        name: 'sum.js',
+        content: fileService.readFileContent('data/sum.js'),
+      })
+    );
   });
 
   ws.send('Hello from WebSocket server');
