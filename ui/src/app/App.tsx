@@ -1,14 +1,9 @@
-import { useEffect, useRef } from 'react';
-import { escapeHtml } from '../utils/html';
-
-const markup = escapeHtml(`if (Math.random() > 0.5) {
-  const y = 5;
-}
-console.log(y); // ReferenceError: y is not defined
-`);
+import { useEffect, useRef, useState } from 'react';
+import TextEditor from '../components/TextEditor/TextEditor';
 
 const App = () => {
   const wsRef = useRef<WebSocket | null>(null);
+  const [markup, setMarkup] = useState('');
 
   useEffect(() => {
     // Create a WebSocket connection
@@ -21,7 +16,7 @@ const App = () => {
 
     wsRef.current.onmessage = (event) => {
       console.log(`Received: ${event.data}`);
-      // console.log(JSON.parse(event.data))
+      setMarkup(JSON.parse(event.data));
     };
 
     wsRef.current.onclose = () => {
@@ -47,7 +42,7 @@ const App = () => {
     <div>
       <button onClick={click}>Send Message</button>
       <h1>WebSocket Test</h1>
-      <div contentEditable dangerouslySetInnerHTML={{ __html: markup }} />
+      <TextEditor code={markup} />
     </div>
   );
 };

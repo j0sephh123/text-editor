@@ -24,15 +24,11 @@ wss.on('connection', (ws) => {
   ws.on('message', async (message) => {
     // ws.send(fileService.readFileContent('data/sum.js'))
     console.log(`Received message => ${message}`);
-    ws.send(
-      JSON.stringify({
-        name: 'sum.js',
-        content: fileService.readFileContent('data/sum.js'),
-      })
-    );
   });
 
-  ws.send('Hello from WebSocket server');
+  ws.send(
+    JSON.stringify(fileService.readFileContent('data/sum.js'))
+  );
 });
 
 server.listen(3333, () => {
